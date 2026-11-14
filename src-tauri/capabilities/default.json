@@ -1,13 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Capability for the main window",
-  "windows": [
-    "main"
-  ],
-  "permissions": [
-    "core:default",
-    "opener:default",
-    "store:default"
-  ]
+  "description": "What the popover UI may call. App commands (hide, quit, prefs, shortcut) are allowed by default.",
+  "windows": ["popover"],
+  "permissions": ["core:default", "store:default"]
 }

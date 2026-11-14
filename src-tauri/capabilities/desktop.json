@@ -1,16 +1,8 @@
 {
+  "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "desktop-capability",
-  "platforms": [
-    "macOS",
-    "windows",
-    "linux"
-  ],
-  "windows": [
-    "main"
-  ],
-  "permissions": [
-    "positioner:default",
-    "global-shortcut:default",
-    "autostart:default"
-  ]
+  "description": "Desktop-only plugins used from the UI. The global shortcut and positioner are driven from Rust only.",
+  "platforms": ["macOS", "windows", "linux"],
+  "windows": ["popover"],
+  "permissions": ["autostart:default"]
 }
