@@ -11,12 +11,17 @@
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "tauri": "tauri",
-    "data": "node scripts/build-cities.ts"
+    "data": "node scripts/build-cities.ts",
+    "test": "vitest run"
   },
   "license": "MIT",
   "dependencies": {
     "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-opener": "^2"
+    "@tauri-apps/plugin-autostart": "~2.7.0",
+    "@tauri-apps/plugin-global-shortcut": "~2.4.1",
+    "@tauri-apps/plugin-opener": "^2",
+    "@tauri-apps/plugin-positioner": "~2.4.0",
+    "@tauri-apps/plugin-store": "~2.5.1"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.10",
@@ -26,6 +31,7 @@
     "svelte": "^5.56.3",
     "svelte-check": "^4.6.0",
     "typescript": "~6.0.3",
-    "vite": "^8.0.16"
+    "vite": "^8.0.16",
+    "vitest": "^5.1.0"
   }
 }
