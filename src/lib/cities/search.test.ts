@@ -38,7 +38,9 @@ describe("createSearch", () => {
   test("ranks a name prefix above a later-word prefix, regardless of population", () => {
     const results = names("york", 50);
     expect(results.indexOf("York, GB")).toBeGreaterThanOrEqual(0);
-    expect(results.indexOf("York, GB")).toBeLessThan(results.indexOf("New York City, US"));
+    expect(results.indexOf("York, GB")).toBeLessThan(
+      results.indexOf("New York City, US"),
+    );
   });
 
   test("ignores punctuation", () => {
@@ -60,9 +62,35 @@ describe("createSearch", () => {
   });
 
   test("is fast enough to run on every keystroke", () => {
-    const queries = ["n", "ne", "new", "new y", "lon", "tok", "zzz", "sao", "st l", "berl"];
-    const start = performance.now();
-    for (let i = 0; i < 100; i++) queries.forEach((q) => search(q));
-    expect(performance.now() - start).toBeLessThan(1000);
+    // A keystroke must update within one frame (~16 ms). Budget a third of that, and use
+    // the median of many runs so slow, shared CI machines don't make the test flaky.
+    const FRAME_BUDGET_MS = 16 / 3;
+    const RUNS = 30;
+    const queries = [
+      "n",
+      "ne",
+      "new",
+      "new y",
+      "lon",
+      "tok",
+      "zzz",
+      "sao",
+      "st l",
+      "berl",
+    ];
+    const median = (xs: number[]) =>
+      xs.toSorted((a, b) => a - b)[Math.floor(xs.length / 2)];
+
+    queries.forEach((q) => search(q)); // warm up the JIT
+    for (const q of queries) {
+      const times = Array.from({ length: RUNS }, () => {
+        const start = performance.now();
+        search(q);
+        return performance.now() - start;
+      });
+      expect(median(times), `median ms for "${q}"`).toBeLessThan(
+        FRAME_BUDGET_MS,
+      );
+    }
   });
 });
