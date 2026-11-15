@@ -97,8 +97,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          ls -la dist
-          gh release create "$GITHUB_REF_NAME" dist/* \
+          # Artifacts keep their bundle subfolders (dmg/, nsis/, appimage/, deb/): upload the files.
+          mapfile -t files < <(find dist -type f \( -name '*.dmg' -o -name '*.exe' -o -name '*.AppImage' -o -name '*.deb' \))
+          printf '%s\n' "${files[@]}"
+          [ "${#files[@]}" -ge 4 ] || { echo "::error::Expected at least 4 installers"; exit 1; }
+          gh release create "$GITHUB_REF_NAME" "${files[@]}" \
             --title "Zonvy $GITHUB_REF_NAME" \
             --notes-file .github/release-notes.md \
             --generate-notes \
