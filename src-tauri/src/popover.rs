@@ -27,6 +27,40 @@ fn window<R: Runtime>(app: &AppHandle<R>) -> Option<WebviewWindow<R>> {
     window
 }
 
+/// One-time native setup, called from `setup` (on the main thread).
+pub fn init<R: Runtime>(app: &AppHandle<R>) {
+    #[cfg(target_os = "macos")]
+    if let Some(window) = window(app) {
+        float_over_fullscreen_apps(&window);
+    }
+    #[cfg(not(target_os = "macos"))]
+    let _ = app;
+}
+
+/// macOS: by default a window only appears in its own Space, under other apps' full-screen
+/// windows. Join every Space, act as a full-screen auxiliary window, and sit at the menu
+/// bar's level so the popover opens on top of whatever is in front, like a system menu.
+#[cfg(target_os = "macos")]
+fn float_over_fullscreen_apps<R: Runtime>(window: &WebviewWindow<R>) {
+    use objc2_app_kit::{NSStatusWindowLevel, NSWindow, NSWindowCollectionBehavior};
+
+    let ns_window = match window.ns_window() {
+        Ok(ptr) if !ptr.is_null() => ptr.cast::<NSWindow>(),
+        Ok(_) => return eprintln!("zonvy: popover has no native window"),
+        Err(error) => return eprintln!("zonvy: could not reach native window: {error}"),
+    };
+    // SAFETY: Tauri hands out a valid NSWindow pointer for this live window, and `init`
+    // runs on the main thread, which AppKit requires for these setters.
+    let ns_window = unsafe { &*ns_window };
+    ns_window.setCollectionBehavior(
+        NSWindowCollectionBehavior::CanJoinAllSpaces
+            | NSWindowCollectionBehavior::FullScreenAuxiliary
+            | NSWindowCollectionBehavior::Stationary
+            | NSWindowCollectionBehavior::IgnoresCycle,
+    );
+    ns_window.setLevel(NSStatusWindowLevel);
+}
+
 pub fn show<R: Runtime>(app: &AppHandle<R>) {
     let Some(window) = window(app) else { return };
     // Anchor under/above the tray icon when its position is known; otherwise

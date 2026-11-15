@@ -5247,6 +5247,7 @@ name = "zonvy"
 version = "0.1.0"
 dependencies = [
  "iana-time-zone",
+ "objc2-app-kit",
  "serde",
  "serde_json",
  "tauri",

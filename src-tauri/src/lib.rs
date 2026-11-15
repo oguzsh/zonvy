@@ -66,6 +66,7 @@ pub fn run() {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
 
+            popover::init(app.handle());
             tray::create(app.handle())?;
             shortcut::init(app.handle());
             Ok(())
