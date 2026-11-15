@@ -1,3 +1,5 @@
+#[cfg(target_os = "macos")]
+mod macos;
 mod popover;
 mod prefs;
 mod shortcut;
@@ -38,6 +40,14 @@ fn set_shortcut_enabled(app: AppHandle, enabled: bool) -> Result<shortcut::Short
     shortcut::set_enabled(&app, enabled)
 }
 
+/// macOS panel support (no-op elsewhere).
+fn native_plugin<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
+    #[cfg(target_os = "macos")]
+    return macos::plugin();
+    #[cfg(not(target_os = "macos"))]
+    tauri::plugin::Builder::new("zonvy-native").build()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -60,13 +70,14 @@ pub fn run() {
         )
         .plugin(tauri_plugin_positioner::init())
         .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(native_plugin())
         .manage(popover::PopoverState::default())
         .setup(|app| {
             // Menu bar app: no Dock icon, no app menu.
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
 
-            popover::init(app.handle());
+            popover::init(app.handle())?;
             tray::create(app.handle())?;
             shortcut::init(app.handle());
             Ok(())

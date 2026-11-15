@@ -10,7 +10,7 @@ use tauri::{AppHandle, Runtime};
 
 use crate::popover;
 
-const TRAY_ID: &str = "zonvy";
+pub const TRAY_ID: &str = "zonvy";
 const MENU_OPEN: &str = "open";
 const MENU_QUIT: &str = "quit";
 

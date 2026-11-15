@@ -148,13 +148,12 @@
       onclick={() => (settingsOpen = !settingsOpen)}
     >
       <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-        <circle cx="8" cy="8" r="2.2" fill="none" stroke="currentColor" stroke-width="1.4" />
-        <path
-          d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4"
-          stroke="currentColor"
-          stroke-width="1.4"
-          stroke-linecap="round"
-        />
+        <!-- sliders: reads as "settings" at small sizes (a cog looked like a sun) -->
+        <g stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none">
+          <path d="M2 4.5h12M2 11.5h12" />
+          <circle cx="10.5" cy="4.5" r="1.7" fill="currentColor" />
+          <circle cx="5.5" cy="11.5" r="1.7" fill="currentColor" />
+        </g>
       </svg>
     </button>
   </div>
