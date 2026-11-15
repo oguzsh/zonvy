@@ -75,7 +75,10 @@ pub fn run() {
         .setup(|app| {
             // Menu bar app: no Dock icon, no app menu.
             #[cfg(target_os = "macos")]
-            app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+            {
+                app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+                app.manage(macos::TrayAnchor::default());
+            }
 
             popover::init(app.handle())?;
             tray::create(app.handle())?;

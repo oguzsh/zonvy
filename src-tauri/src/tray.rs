@@ -53,6 +53,8 @@ fn on_tray_event<R: Runtime>(tray: &TrayIcon<R>, event: TrayIconEvent) {
     let app = tray.app_handle();
     // Lets the positioner plugin anchor the popover to the icon.
     tauri_plugin_positioner::on_tray_event(app, &event);
+    #[cfg(target_os = "macos")]
+    crate::macos::remember_tray_rect(app, &event);
 
     if let TrayIconEvent::Click {
         button: MouseButton::Left,
