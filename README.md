@@ -10,6 +10,8 @@
 Local time for any city with 15k+ people, from your menu bar or tray. Works fully offline:
 you don't need to know which time zone a city is in.
 
+**[Download the latest release](https://github.com/oguzsh/zonvy/releases/latest)** for macOS, Windows or Linux.
+
 - **macOS:** click the clock icon in the menu bar, or press **⌃⌥Z**.
 - **Windows:** click the tray icon, or press **Ctrl+Alt+Shift+T**.
 - **Linux:** use the tray icon's **Open Zonvy** menu item or **Ctrl+Alt+Shift+T** (X11).
@@ -56,6 +58,17 @@ pnpm tauri build --target universal-apple-darwin  # macOS, Intel + Apple Silicon
 
 CI (`.github/workflows/build.yml`) builds `.dmg`, `.exe`, `.AppImage` and `.deb` artifacts on
 every push to `main`.
+
+### Release
+
+Bump `version` in `src-tauri/tauri.conf.json` (and `package.json`), commit, then push a matching tag:
+
+```bash
+git tag v0.2.0 && git push origin v0.2.0
+```
+
+CI builds all three platforms and publishes a GitHub Release with the installers attached.
+The release notes come from `.github/release-notes.md` plus the commit list since the last tag.
 
 ### First launch of unsigned builds
 
