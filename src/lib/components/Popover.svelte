@@ -35,6 +35,8 @@
     searching ? searchCities(query) : resolvePins(pinnedIds, citiesById),
   );
   const duplicateNames = $derived(namesSeenTwice(rows));
+  /** activeIndex kept in range when the list shrinks (e.g. unpinning the last row). */
+  const current = $derived(Math.min(activeIndex, Math.max(rows.length - 1, 0)));
 
   /** Called by the page each time the popover opens. */
   export function reset(): void {
@@ -60,28 +62,50 @@
 
   function moveActive(delta: number): void {
     if (rows.length === 0) return;
-    activeIndex = Math.min(Math.max(activeIndex + delta, 0), rows.length - 1);
+    setActive(current + delta);
+  }
+
+  function setActive(index: number): void {
+    activeIndex = Math.min(Math.max(index, 0), Math.max(rows.length - 1, 0));
     tick().then(() =>
       list?.querySelector(`#row-${activeIndex}`)?.scrollIntoView({ block: "nearest" }),
     );
   }
 
+  function reorder(from: number, to: number): void {
+    onReorder(from, to);
+    setActive(to);
+  }
+
+  function closeSettings(): void {
+    settingsOpen = false;
+    input?.focus();
+  }
+
   function onKeydown(event: KeyboardEvent): void {
+    // While settings are open the list is hidden: only Esc (back to the list) applies.
+    if (settingsOpen) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeSettings();
+      }
+      return;
+    }
     const reorderKey = event.altKey && !searching;
     switch (event.key) {
       case "ArrowDown":
         event.preventDefault();
-        if (reorderKey && activeIndex < rows.length - 1) onReorder(activeIndex, activeIndex + 1);
-        moveActive(1);
+        if (reorderKey && current < rows.length - 1) reorder(current, current + 1);
+        else moveActive(1);
         break;
       case "ArrowUp":
         event.preventDefault();
-        if (reorderKey && activeIndex > 0) onReorder(activeIndex, activeIndex - 1);
-        moveActive(-1);
+        if (reorderKey && current > 0) reorder(current, current - 1);
+        else moveActive(-1);
         break;
       case "Enter":
         event.preventDefault();
-        toggle(rows[activeIndex]);
+        toggle(rows[current]);
         break;
       case "Escape":
         event.preventDefault();
@@ -91,7 +115,7 @@
   }
 
   function onDrop(to: number): void {
-    if (dragFrom !== null && dragFrom !== to) onReorder(dragFrom, to);
+    if (dragFrom !== null && dragFrom !== to) reorder(dragFrom, to);
     dragFrom = null;
   }
 </script>
@@ -105,12 +129,13 @@
     <input
       bind:this={input}
       bind:value={query}
+      readonly={settingsOpen}
       oninput={() => (activeIndex = 0)}
       onkeydown={onKeydown}
       placeholder="Search a city…"
       aria-label="Search a city"
       aria-controls="city-list"
-      aria-activedescendant={rows.length > 0 ? `row-${activeIndex}` : undefined}
+      aria-activedescendant={rows.length > 0 && !settingsOpen ? `row-${current}` : undefined}
       spellcheck="false"
       autocomplete="off"
     />
@@ -135,17 +160,18 @@
   </div>
 
   {#if settingsOpen}
-    {@render settings(() => {
-      settingsOpen = false;
-      input?.focus();
-    })}
+    {@render settings(closeSettings)}
   {:else}
     <div class="list" id="city-list" role="listbox" aria-label="Cities" bind:this={list}>
       {#each rows as city, i (city.id)}
         <div
           role="presentation"
           draggable={!searching}
-          ondragstart={() => (dragFrom = i)}
+          ondragstart={(e) => {
+            dragFrom = i;
+            // WebKitGTK won't start a drag without data.
+            e.dataTransfer?.setData("text/plain", String(city.id));
+          }}
           ondragover={(e) => e.preventDefault()}
           ondrop={() => onDrop(i)}
           ondragend={() => (dragFrom = null)}
@@ -158,7 +184,7 @@
             {hour12}
             domId={`row-${i}`}
             pinned={pinnedSet.has(city.id)}
-            active={i === activeIndex}
+            active={i === current}
             showRegion={duplicateNames.has(city.name)}
             onToggle={() => toggle(city)}
             onHover={() => (activeIndex = i)}

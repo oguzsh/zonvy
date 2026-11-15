@@ -9,14 +9,19 @@ const TICK_SLACK_MS = 50;
 export type Clock = {
   readonly now: Date;
   readonly localTz: string;
-  /** Re-reads the time and zone now (call when the popover opens; timers pause during sleep). */
-  refresh(localTzOverride?: string | null): void;
+  /**
+   * Re-reads the time now (call when the popover opens; timers pause during sleep).
+   * Pass the system zone read from Rust to remember it for later ticks; pass nothing
+   * to keep the last one. Without one, the webview's own zone is used.
+   */
+  refresh(systemTz?: string | null): void;
   stop(): void;
 };
 
 export function createClock(): Clock {
   let now = $state(new Date());
   let localTz = $state(currentLocalZone());
+  let systemTz: string | null = null;
   let timer: ReturnType<typeof setTimeout> | undefined;
 
   function schedule(): void {
@@ -25,9 +30,10 @@ export function createClock(): Clock {
     timer = setTimeout(() => refresh(), untilNextMinute);
   }
 
-  function refresh(localTzOverride?: string | null): void {
+  function refresh(tz?: string | null): void {
+    if (tz !== undefined) systemTz = tz;
     now = new Date();
-    localTz = localTzOverride || currentLocalZone();
+    localTz = systemTz || currentLocalZone();
     schedule();
   }
 

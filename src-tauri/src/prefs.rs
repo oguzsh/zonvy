@@ -48,13 +48,22 @@ mod platform {
     use winreg::RegKey;
     use winreg::enums::HKEY_CURRENT_USER;
 
-    /// `iTime` under Control Panel\International: "1" = 24-hour, "0" = 12-hour.
+    /// Reads Control Panel\International. `sShortTime` (e.g. "HH:mm" or "h:mm tt") is what
+    /// the taskbar clock uses: `H` = 24-hour, `h` = 12-hour. Falls back to the legacy `iTime`
+    /// ("1" = 24-hour, "0" = 12-hour).
     pub fn hour12() -> Option<bool> {
         let key = RegKey::predef(HKEY_CURRENT_USER)
             .open_subkey("Control Panel\\International")
             .ok()?;
-        let value: String = key.get_value("iTime").ok()?;
-        match value.trim() {
+        if let Ok(short_time) = key.get_value::<String, _>("sShortTime") {
+            if short_time.contains('H') {
+                return Some(false);
+            }
+            if short_time.contains('h') {
+                return Some(true);
+            }
+        }
+        match key.get_value::<String, _>("iTime").ok()?.trim() {
             "0" => Some(true),
             "1" => Some(false),
             _ => None,

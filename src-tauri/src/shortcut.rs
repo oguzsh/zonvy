@@ -1,6 +1,7 @@
 //! Global keyboard shortcut that toggles the popover.
 //!
-//! Defaults avoid known clashes (⌥⌘T is Finder's, Ctrl+Alt+T opens a terminal on Ubuntu).
+//! Defaults avoid known clashes: ⌥⌘T is Finder's, ⌃⌥Space switches input sources on Macs with
+//! several keyboard layouts, and Ctrl+Alt+T opens a terminal on Ubuntu.
 //! The on/off choice is saved in preferences.json; registration failures are reported to
 //! the UI ("Shortcut unavailable") instead of being swallowed.
 
@@ -25,8 +26,8 @@ pub struct ShortcutStatus {
 #[cfg(target_os = "macos")]
 fn default_shortcut() -> (Shortcut, &'static str) {
     (
-        Shortcut::new(Some(Modifiers::CONTROL | Modifiers::ALT), Code::Space),
-        "⌃⌥Space",
+        Shortcut::new(Some(Modifiers::CONTROL | Modifiers::ALT), Code::KeyZ),
+        "⌃⌥Z",
     )
 }
 

@@ -17,13 +17,14 @@ fn quit_app(app: AppHandle) {
     app.exit(0);
 }
 
+// Async so they run off the main thread: on macOS hour12() spawns `defaults`.
 #[tauri::command]
-fn system_hour12() -> Option<bool> {
+async fn system_hour12() -> Option<bool> {
     prefs::hour12()
 }
 
 #[tauri::command]
-fn system_time_zone() -> Option<String> {
+async fn system_time_zone() -> Option<String> {
     prefs::time_zone()
 }
 

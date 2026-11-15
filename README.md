@@ -3,7 +3,7 @@
 Local time for any city with 15k+ people, from your menu bar or tray. Works fully offline:
 you don't need to know which time zone a city is in.
 
-- **macOS:** click the clock icon in the menu bar, or press **⌃⌥Space**.
+- **macOS:** click the clock icon in the menu bar, or press **⌃⌥Z**.
 - **Windows:** click the tray icon, or press **Ctrl+Alt+Shift+T**.
 - **Linux:** use the tray icon's **Open Zonvy** menu item or **Ctrl+Alt+Shift+T** (X11).
   On GNOME/Wayland, launch Zonvy again from the app launcher to open it.

@@ -27,6 +27,7 @@
   const place = $derived(showRegion && city.admin1 ? `${city.admin1}, ${city.cc}` : city.cc);
 </script>
 
+<!-- Hover uses mousemove, not mouseenter: keyboard scrolling moves rows under a still pointer. -->
 <!-- svelte-ignore a11y_click_events_have_key_events (keyboard handled by the listbox) -->
 <div
   id={domId}
@@ -35,7 +36,7 @@
   role="option"
   aria-selected={active}
   tabindex="-1"
-  onmouseenter={onHover}
+  onmousemove={onHover}
   ondblclick={onToggle}
 >
   <span class="place">

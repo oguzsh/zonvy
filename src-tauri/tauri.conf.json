@@ -25,6 +25,7 @@
         "minimizable": false,
         "skipTaskbar": true,
         "alwaysOnTop": true,
+        "visibleOnAllWorkspaces": true,
         "dragDropEnabled": false,
         "shadow": true,
         "windowEffects": {

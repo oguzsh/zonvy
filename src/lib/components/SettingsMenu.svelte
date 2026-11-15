@@ -5,8 +5,9 @@
     launchAtLogin: boolean;
     shortcut: ShortcutStatus | null;
     version: string;
-    onToggleLaunchAtLogin: (enabled: boolean) => void;
-    onToggleShortcut: (enabled: boolean) => void;
+    /** Each toggle resolves to the real state afterwards, which may differ if it failed. */
+    onToggleLaunchAtLogin: (enabled: boolean) => Promise<boolean>;
+    onToggleShortcut: (enabled: boolean) => Promise<boolean>;
     onQuit: () => void;
     onClose: () => void;
   };
@@ -21,6 +22,11 @@
     onClose,
   }: Props = $props();
 
+  /** Svelte won't re-set `checked` if the prop value didn't change, so correct the box directly. */
+  function applyToggle(box: HTMLInputElement, toggle: (enabled: boolean) => Promise<boolean>) {
+    toggle(box.checked).then((actual) => (box.checked = actual));
+  }
+
   const shortcutUnavailable = $derived(shortcut !== null && shortcut.enabled && !shortcut.registered);
 </script>
 
@@ -29,7 +35,7 @@
     <input
       type="checkbox"
       checked={launchAtLogin}
-      onchange={(e) => onToggleLaunchAtLogin(e.currentTarget.checked)}
+      onchange={(e) => applyToggle(e.currentTarget, onToggleLaunchAtLogin)}
     />
     Launch at login
   </label>
@@ -39,7 +45,7 @@
       type="checkbox"
       checked={shortcut?.enabled ?? false}
       disabled={shortcut === null}
-      onchange={(e) => onToggleShortcut(e.currentTarget.checked)}
+      onchange={(e) => applyToggle(e.currentTarget, onToggleShortcut)}
     />
     Keyboard shortcut
     <span class="hint" class:warn={shortcutUnavailable}>
