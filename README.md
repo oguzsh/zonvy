@@ -1,5 +1,12 @@
 # Zonvy
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme-hero-dark.svg">
+    <img alt="Zonvy: a menu bar popover showing local times for New York, London, Istanbul, Kathmandu and Tokyo" src="docs/assets/readme-hero-light.svg" width="100%">
+  </picture>
+</p>
+
 Local time for any city with 15k+ people, from your menu bar or tray. Works fully offline:
 you don't need to know which time zone a city is in.
 
